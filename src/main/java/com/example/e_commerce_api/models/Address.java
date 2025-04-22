@@ -1,7 +1,6 @@
 package com.example.e_commerce_api.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,20 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "addresses")
 public class Address {
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String street;
+
+    private String city;
+
+    private String zip;
+
+    private String state;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 }
