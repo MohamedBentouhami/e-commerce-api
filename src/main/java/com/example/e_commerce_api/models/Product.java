@@ -25,7 +25,7 @@ public class Product {
     private BigDecimal price;
 
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Category category;
 
 }
