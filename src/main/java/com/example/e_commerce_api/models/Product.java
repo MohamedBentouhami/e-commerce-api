@@ -1,5 +1,6 @@
 package com.example.e_commerce_api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class Product {
 
     private BigDecimal price;
 
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Category category;
 
