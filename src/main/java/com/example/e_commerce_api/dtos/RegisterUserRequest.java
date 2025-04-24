@@ -1,13 +1,12 @@
 package com.example.e_commerce_api.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@AllArgsConstructor
 @Data
-public class UserDto {
-    private Long id;
+@AllArgsConstructor
+public class RegisterUserRequest {
     private String name;
     private String email;
+    private String password;
 }
