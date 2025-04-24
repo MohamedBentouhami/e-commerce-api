@@ -1,6 +1,7 @@
 package com.example.e_commerce_api.controllers;
 
 import com.example.e_commerce_api.dtos.RegisterUserRequest;
+import com.example.e_commerce_api.dtos.UpdateUserRequest;
 import com.example.e_commerce_api.dtos.UserDto;
 import com.example.e_commerce_api.mappers.UserMapper;
 import com.example.e_commerce_api.models.User;
@@ -30,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserDto> getUser(@PathVariable(name = "id") Long id) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -45,5 +46,27 @@ public class UserController {
         userRepository.save(user);
         var uri = uriBuilder.path("/api/users/{id}").buildAndExpand(user.getId()).toUri();
         return ResponseEntity.created(uri).body(userMapper.toDto(user));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable(name = "id") Long id,
+            @RequestBody UpdateUserRequest request
+    ) {
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) return ResponseEntity.notFound().build();
+        userMapper.update(request, user);
+        userRepository.save(user);
+        return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") Long id) {
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) return ResponseEntity.notFound().build();
+
+        userRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+
     }
 }
