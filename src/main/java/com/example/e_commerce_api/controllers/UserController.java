@@ -4,13 +4,13 @@ import com.example.e_commerce_api.dtos.ChangePasswordRequest;
 import com.example.e_commerce_api.dtos.RegisterUserRequest;
 import com.example.e_commerce_api.dtos.UpdateUserRequest;
 import com.example.e_commerce_api.dtos.UserDto;
+import com.example.e_commerce_api.exceptions.UserNotFoundException;
 import com.example.e_commerce_api.mappers.UserMapper;
 import com.example.e_commerce_api.models.User;
 import com.example.e_commerce_api.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -35,10 +35,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable(name = "id") Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
+        User user = getUserOrThrow(id);
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
@@ -56,8 +53,7 @@ public class UserController {
             @PathVariable(name = "id") Long id,
             @RequestBody UpdateUserRequest request
     ) {
-        var user = userRepository.findById(id).orElse(null);
-        if (user == null) return ResponseEntity.notFound().build();
+        User user = getUserOrThrow(id);
         userMapper.update(request, user);
         userRepository.save(user);
         return ResponseEntity.ok(userMapper.toDto(user));
@@ -65,9 +61,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") Long id) {
-        var user = userRepository.findById(id).orElse(null);
-        if (user == null) return ResponseEntity.notFound().build();
-
+        getUserOrThrow(id);
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
 
@@ -78,9 +72,7 @@ public class UserController {
             @PathVariable(name = "id") Long id,
             @RequestBody ChangePasswordRequest request
     ) {
-        var user = userRepository.findById(id).orElse(null);
-        if (user == null) return ResponseEntity.notFound().build();
-
+        User user = getUserOrThrow(id);
         if (!user.getPassword().equals(request.getOldPassword())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -88,5 +80,9 @@ public class UserController {
         userRepository.save(user);
         return ResponseEntity.noContent().build();
 
+    }
+
+    private User getUserOrThrow(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 }
