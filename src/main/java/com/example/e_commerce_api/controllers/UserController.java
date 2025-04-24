@@ -1,5 +1,6 @@
 package com.example.e_commerce_api.controllers;
 
+import com.example.e_commerce_api.dtos.ChangePasswordRequest;
 import com.example.e_commerce_api.dtos.RegisterUserRequest;
 import com.example.e_commerce_api.dtos.UpdateUserRequest;
 import com.example.e_commerce_api.dtos.UserDto;
@@ -8,6 +9,8 @@ import com.example.e_commerce_api.models.User;
 import com.example.e_commerce_api.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -66,6 +69,23 @@ public class UserController {
         if (user == null) return ResponseEntity.notFound().build();
 
         userRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @PostMapping("/{id}/change-password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable(name = "id") Long id,
+            @RequestBody ChangePasswordRequest request
+    ) {
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) return ResponseEntity.notFound().build();
+
+        if (!user.getPassword().equals(request.getOldPassword())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        user.setPassword(request.getNewPassword());
+        userRepository.save(user);
         return ResponseEntity.noContent().build();
 
     }
